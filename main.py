@@ -3,6 +3,7 @@ from random import uniform
 from action import Action
 from field import Field
 from markov_decision_process import MarkovDecisionProcess
+from q_learner import QLearner
 
 
 def main():
@@ -12,16 +13,15 @@ def main():
     mdp.set_field(3, 1, Field.NEG_TERMINAL)
     print(mdp)
 
-    while not mdp.terminated:
-        actions = mdp.get_possible_actions()
-        action = actions[int(uniform(0, len(actions)))]
-        mdp.act(action)
-        print(str(mdp))
+    q_learner:QLearner = QLearner(mdp)
 
-    actions = mdp.get_possible_actions()
-    action = actions[int(uniform(0, len(actions)))]
-    mdp.act(action)
-    print(mdp)
+    while True:
+        if mdp.terminated:
+            mdp.restart()
+        q_learner.print_actions()
+        input("enter to advance")
+        q_learner.step()
+        print(q_learner)
 
 
 if __name__ == "__main__":

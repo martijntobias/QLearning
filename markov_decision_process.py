@@ -82,13 +82,15 @@ class MarkovDecisionProcess:
         :param action: The Action this agent will try to perform.
         """
         if self.terminated:
-            self.restart()
+            raise ValueError  # must restart mdp first, as agent already took Terminate action on terminal
 
         if action == Action.TERMINAL:
             self.terminated = True
+            return
 
         if uniform(0, 1) < self.failure:
             action = action.turn(uniform(0, 1) <= 0.5)  # clockwise or counter-clockwise with equal chance for both
+            print("FAIL:", action)
 
         dx, dy = action.delta()
         x, y = self.agent_x+dx, self.agent_y+dy
@@ -145,7 +147,8 @@ class MarkovDecisionProcess:
         for y in range(len(self.fields[0])-1, -1, -1):  # loop other way around to display bottom as y=0
             line:str = "\n|"
             for x in range(len(self.fields)):
-                if x == self.agent_x and y == self.agent_y:
+                if x == (self.start_x if self.terminated else self.agent_x) \
+                        and (self.start_y if self.terminated else y == self.agent_y):
                     line += "@"
                 else:
                     line += str(self.fields[x][y])
